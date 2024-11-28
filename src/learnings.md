@@ -193,3 +193,80 @@ const connectDB = async () => {
 }
 
 module.exports = connectDB;
+
+
+
+
+
+
+
+
+
+
+
+
+
+              ..... data operating using mongoose methods like save find etc.....
+
+
+
+
+
+
+
+
+
+
+
+
+// using a middle ware to convert json into
+
+app.use(express.json());
+
+//posting a userobj to the mongo db ...................................
+
+app.post('/signUp', async (req, res) => {
+
+    //creating a demo data .............................................
+
+    const userObj = {
+        firstName: "Siranjeev",
+        lastName: "Venkatakumar",
+        emailId: "siranjeev@gmail.com",
+        password: 1123344,
+        age: 23,
+        gender: "male"
+    }
+
+    // converting y=use to userObj .................................................
+    const user = new User(userObj);
+
+    //saving the data to user collection .....................................
+    await user.save();
+
+    res.send("user saved successfully");
+})
+
+//finding users by their datas
+app.get('/getUser', async (req, res) => {
+
+    // converting y=use to userObj .................................................
+    // const user = new User();
+
+    //finding the data (all the users) from user collection .....................................
+    const userByFirstName = await User.find({ firstName: "Siranjeev" });
+
+    res.send(userByFirstName);
+})
+//getting user feed
+
+app.get('/feed', async (req, res) => {
+
+    // converting y=use to userObj .................................................
+    // const user = new User();
+
+    //finding the data (all the users) from user collection .....................................
+    const listedUser = await User.find({});
+
+    res.send(listedUser);
+})

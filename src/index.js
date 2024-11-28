@@ -10,6 +10,8 @@ const User = require('./models/user');
 
 const app = express();
 
+// using a middle ware to convert json into
+app.use(express.json());
 //posting a userobj to the mongo db ...................................
 
 app.post('/signUp', async (req, res) => {
@@ -33,6 +35,31 @@ app.post('/signUp', async (req, res) => {
 
     res.send("user saved successfully");
 })
+
+//finding users by their datas
+app.get('/getUser', async (req, res) => {
+
+    // converting y=use to userObj .................................................
+    // const user = new User();
+
+    //finding the data (all the users) from user collection .....................................
+    const userByFirstName = await User.find({ firstName: "Siranjeev" });
+
+    res.send(userByFirstName);
+})
+//getting user feed
+
+app.get('/feed', async (req, res) => {
+
+    // converting y=use to userObj .................................................
+    // const user = new User();
+
+    //finding the data (all the users) from user collection .....................................
+    const listedUser = await User.find({});
+
+    res.send(listedUser);
+})
+
 // db should connect before app starts ...................
 // so we listening to 7777 inside connect db happy section ..................
 
