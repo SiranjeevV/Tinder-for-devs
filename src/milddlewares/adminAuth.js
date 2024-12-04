@@ -1,14 +1,22 @@
-const adminAuth = (req, res, next) => {
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 
-// Example Auth Logic .........................
+const userAuth = async (req, res, next) => {
 
-    const token = 'xyz';
-    if (token != 'xyz') {
-        res.status(401).send('Unauthorised Admin Error');
-    } else {
-        next();
+    // Example Auth Logic .........................
+    const { token } = req.cookies
+    console.log(token)
+    const decodedToken = await jwt.verify(token, "key@2024")
+    const { _id } = decodedToken;
+    const user = User.findById(_id);
+    
+    if (!user) {
+        throw new Error("no users found")
     }
+    req.user = user;
+    next();
+
 }
 
 // EXPORTING ADMINAUTH ..................................
-module.exports = { adminAuth };
+module.exports = { userAuth };
