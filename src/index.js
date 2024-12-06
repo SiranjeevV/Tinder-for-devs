@@ -1,7 +1,6 @@
 const express = require("express");
 
 // requiring connect db func that is connected to mongoose ......................
-
 const connectDB = require("./configs/database")
 
 //install bcrpt and import
@@ -10,7 +9,6 @@ const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 
 // requiring model schema that we have created ......................................
-
 const User = require('./models/user');
 
 const { userAuth } = require('./milddlewares/adminAuth')
@@ -22,83 +20,18 @@ app.use(express.json());
 
 //to read cookies from the request
 app.use(cookieParser());
+
 //posting a userobj to the mongo db ...................................
 
-app.post('/signUp', async (req, res) => {
+const profileRouter = require("./routes/profile");
+const authRouter = require("./routes/auth")
 
-    try {
-        //validating the details
-        validateSignUpData(req);
-        //Encrypt your password
-        const { password, firstName, lastName, emailId, age, skills, gender } = req.body;
-        // encrypting password
-        const pwdHash = await bcrypt.hash(password, 10);
 
-        //creating a demo data .............................................
+app.use("/", authRouter);
+app.use("/", profileRouter);
 
-        // const userObj = req.body;
-
-        // converting y=use to userObj .................................................
-        const user = new User({
-            firstName,
-            lastName,
-            age,
-            skills,
-            emailId,
-            gender,
-            password: pwdHash
-        });
-
-        //saving the data to user collection ..... ................................
-        await user.save();
-
-        res.send("user saved successfully");
-    }
-    catch (err) {
-        res.status(400).send("ERR" + err);
-    }
-});
-//login
-app.post("/login", async (req, res) => {
-    try {
-        const { emailId, password } = req.body;
-        const user = await User.findOne({ emailId: emailId });
-        if (!user) {
-            throw new Error("Invalid Credentials")
-        }
-        // password comparing
-        const isPasswordValid = await user.validatePassword(password);
-        //
-        if (!isPasswordValid) {
-            throw new Error("Invalid Credentials")
-        } else {
-            //to create new token with the key
-            const token = await user.getJwt();
-            // setting the cookie with key 
-            res.cookie("token", token);
-            res.send("Logged in Successfully")
-        }
-    }
-    catch (err) {
-        res.status(400).send("ERR" + err.message);
-    }
-})
-
-//finding users by their datas
-app.get('/getUser', async (req, res) => {
-
-    // converting y=use to userObj .................................................
-    // const user = new User();
-
-    //finding the data (all the users) from user collection .....................................
-    const userByFirstName = await User.find({ firstName: "Siranjeev" });
-
-    res.send(userByFirstName);
-})
 //getting user feed
-
 app.get('/feed', userAuth, async (req, res) => {
-
     // converting y=use to userObj .................................................
     // const user = new User();
     //finding the data (all the users) from user collection .....................................
@@ -107,31 +40,7 @@ app.get('/feed', userAuth, async (req, res) => {
     res.send(listedUser);
 })
 
-// patch api
 
-app.patch('/setUser', userAuth, async (req, res) => {
-    const userId = req.body.userId;
-    const data = req.body;
-
-    try {
-        const allowedUpdates = ["userId", "firstName", "lastName", "skills", "password"];
-
-        const isUpdateAllowed = Object.keys(data).every((k) => allowedUpdates.includes(k))
-
-        if (!isUpdateAllowed) {
-            res.status(401).send('update not allowed for one of the selected keys');
-        }
-
-        const user = await User.findByIdAndUpdate(userId, data, {
-            runValidators: true,
-            returnDocument: "before"
-        });
-
-        res.send("user updated successfully");
-    } catch (err) {
-        res.send("ERR" + err);
-    }
-})
 // db should connect before app starts ...................
 // so we listening to 7777 inside connect db happy section ..................
 
