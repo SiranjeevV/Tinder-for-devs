@@ -40,7 +40,6 @@ app.get('/feed', userAuth, async (req, res) => {
     res.send(listedUser);
 })
 
-
 // db should connect before app starts ...................
 // so we listening to 7777 inside connect db happy section ..................
 
