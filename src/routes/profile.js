@@ -2,33 +2,34 @@
 const { userAuth } = require('../milddlewares/adminAuth')
 const express = require("express");
 const profileRouter = express.Router();
+const validateLoginFields = require("../utils/validation")
 
 profileRouter.get('/profile/view', userAuth, async (req, res) => {
     // converting y=use to userObj .................................................
     // const user = new User();
     //finding the data (all the users) from user collection .....................................
-    const user = req.user;
-    res.send(user);
+    try {
+        const user = req.user;
+         res.send(user);
+    }
+    catch (err) {
+        res.send("ERR: " + err);
+    }
 })
 
 // patch api
 
 profileRouter.patch('/profile/edit', userAuth, async (req, res) => {
-    const userId = req.body.userId;
-    const data = req.body;
- 
-    try {
-        const allowedUpdates = ["userId", "firstName", "lastName", "skills", "password"];
-        const isUpdateAllowed = Object.keys(data).every((k) => allowedUpdates.includes(k))
 
-        if (!isUpdateAllowed) {
+    try {
+        if (!validateLoginFields) {
             res.status(401).send('update not allowed for one of the selected keys');
         }
+        const loggedInUser = req.user;
 
-        const user = await User.findByIdAndUpdate(userId, data, {
-            runValidators: true,
-            returnDocument: "before"
-        });
+        Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
+
+        await loggedInUser.save();
 
         res.send("user updated successfully");
     } catch (err) {

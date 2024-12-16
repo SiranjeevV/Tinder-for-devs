@@ -25,10 +25,11 @@ app.use(cookieParser());
 
 const profileRouter = require("./routes/profile");
 const authRouter = require("./routes/auth")
-
+const requestRouter = require("./routes/request")
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
+app.use("/", requestRouter);
 
 //getting user feed
 app.get('/feed', userAuth, async (req, res) => {
@@ -36,7 +37,6 @@ app.get('/feed', userAuth, async (req, res) => {
     // const user = new User();
     //finding the data (all the users) from user collection .....................................
     const listedUser = await User.find({});
-
     res.send(listedUser);
 })
 

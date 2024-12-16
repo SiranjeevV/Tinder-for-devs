@@ -10,4 +10,22 @@ const validateSignUpData = (req) => {
     }
 }
 
-module.exports = { validateSignUpData };
+const validateLoginFields = (req) => {
+    const allowedFields = [
+        firstName,
+        lastName,
+        emailId,
+        gender,
+        age,
+        skills
+    ];
+
+    const allowValidateFields = Object.keys(req.body).every((field) => {
+        allowedFields.includes(field);
+    })
+
+    return allowValidateFields;
+
+}
+
+module.exports = { validateSignUpData, validateLoginFields };
