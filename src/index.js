@@ -49,8 +49,8 @@ connectDB().then(() => {
     app.listen(7777, () => {
         console.log("Server starts on port 7777");
     });
-}).catch(() => {
-    console.log('DB not connected');
+}).catch((err) => {
+    console.log('DB not connected: '+err);
 });
 
 // Import the requires from Middleware .............................
@@ -136,5 +136,3 @@ connectDB().then(() => {
 // app.get('/admin/getAllData', (req, res) => {
 //     res.send("Data Admin Sent !!!!!");
 // })
-
-

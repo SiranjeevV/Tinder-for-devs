@@ -22,17 +22,10 @@ userRouter.get('/users/request/received', userAuth, async (req, res) => {
 
 userRouter.get('/users/connections', userAuth, async (req, res) => {
     try {
-        const limit = req.params.limit
         const loggedInUser = req.user._id;
         const connections = await ConnectionRequest.find({
-            $or: [
-                {
-                    fromUserId: loggedInUser, status: accepted
-                },
-                {
-                    toUserId: loggedInUser, status: accepted
-                }
-            ]
+            $or: [{ fromUserId: loggedInUser, status: "accepted" },
+            { toUserId: loggedInUser, status: "accepted" }]
         }).populate("fromUserId", "firstName")
             .populate("toUserId", "firstName");
 
@@ -46,7 +39,6 @@ userRouter.get('/users/connections', userAuth, async (req, res) => {
             message: "Connected Users",
             data: datas
         })
-
     }
     catch (err) {
         res.status(400).send("ERR: " + err);
@@ -57,16 +49,10 @@ userRouter.get('/feed', userAuth, async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
-
         const loggedInUser = req.user;
         const interactedUsers = await ConnectionRequest.find({
-            $or: [
-                {
-                    fromUserId: loggedInUser._id
-                },
-                {
-                    toUserId: loggedInUser._id
-                }
+            $or: [{ fromUserId: loggedInUser._id },
+            { toUserId: loggedInUser._id }
             ]
         }).select("fromUserId toUserId");
         const hiddenUsers = new Set();
@@ -76,14 +62,12 @@ userRouter.get('/feed', userAuth, async (req, res) => {
         });
 
         const feedUsers = await User.find({
-            $and: [
-                {
-                    _id: { $nin: Array.from(hiddenUsers) }
-                },
-                {
-                    _id: { $ne: loggedInUser._id }
-                }
-            ]
+            $and: [{
+                _id: { $nin: Array.from(hiddenUsers) }
+            },
+            {
+                _id: { $ne: loggedInUser._id }
+            }]
         }).skip(skip).limit(limit).select('firstName lastName age gender skills')
         res.json(feedUsers);
     }
